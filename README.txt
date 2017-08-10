@@ -2,8 +2,6 @@
 #
 #	Author: Matej Svoboda
 #
-#	***All Rights Reserved***
-#
 ################################################################################
 #
 # CONTENT OF THE FOLDER
