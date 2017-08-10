@@ -42,5 +42,6 @@
 # 
 # startup.sh - starup script which automatise program
 #
-#
+#To run summariser:
+# bash startup.sh
 #
