@@ -28,11 +28,12 @@
 #
 #
 # Models >
-#	lstm_simple.py - initiate deep learning process
+#	lstmSimple.py - initiate deep learning process using LSTM Neural Network
 #	sequenceNet.py - neural network
 #	simple.py - neural network
-#
-# Results >
+# gruSimple.py - initiate deep learning process using GRU Neural Network
+# 
+#Results >
 #	lstm >
 #		output.csv - results of the summarisation process.
 #
