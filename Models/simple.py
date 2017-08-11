@@ -96,7 +96,7 @@ class Simple(NeuralNet):
         :return: None
         """
         self.mapper = Mapper()
-        self.mapper.generate_vocabulary(self.review_summary_file)
+        self.mapper.generate_vocabulary(self.docSum_file)
         self.X, self.Y = self.mapper.get_tensor()
         # Store all the mapper values in a dict for later recovery
         self.mapper_dict = dict()
