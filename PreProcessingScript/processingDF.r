@@ -42,6 +42,8 @@ dfCorpusFN = function(data_frame) {
   c = tm_map(c, content_transformer(removeTopicName))
   c = tm_map(c, content_transformer(extractText))
   c = tm_map(c, content_transformer(removeSCH))
+  c = tm_map(c, removePunctuation)
+  c = tm_map(c, content_transformer(tolower))
   return(c)
 }
 
