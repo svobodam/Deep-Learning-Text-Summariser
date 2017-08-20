@@ -1,18 +1,27 @@
 #!/bin/bash
+#init
 # Startup script to run scripts in correct sequence
 
+# Variables
 LSTMATTN=$HOME/deep-Learning-Text-Summariser/runScripts/trainLSTM-ATTN.py
 LSTMNOATTN=$HOME/deep-Learning-Text-Summariser/runScripts/trainLSTM-noATTN.py
 LSTMBIDATTN=$HOME/deep-Learning-Text-Summariser/runScripts/trainLSTM-Bidirectional-ATTN.py
 LSTMBIDNOATTN=$HOME/deep-Learning-Text-Summariser/runScripts/trainLSTM-Bidirectional-noATTN.py
+
+#Functions
+function pause(){
+	read -p "$*"
+}
 
 # Run Explorartion R Script
 echo Starting Dataset Preprocessing...
 echo Output from Dataset preprocessing...
 Rscript PreProcessingScript/source.r
 echo Dataset preprocessing completed...
+pause 'Press [Enter] when ready to continue...'
 echo ...
 echo Starting deep-learning process...
+
 # Running deep-learning
 
 echo Please select deep-learning model:
@@ -41,5 +50,6 @@ else
 	exit 1
 	
 fi
+
 
 
