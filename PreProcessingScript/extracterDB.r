@@ -27,11 +27,11 @@ while(counter <= 25){
   for (w in docNames) {
     if ((exists("dfDataNames"))==TRUE) {
       dfEditNames=data.frame(with(df, paste0(df[[w]])), stringsAsFactors=FALSE)
-      colnames(dfEditNames)="DocSum"
+      colnames(dfEditNames)="Summaries"
       dfDataNames=rbind(dfDataNames,dfEditNames)
     } else {
       dfDataNames=data.frame(with(df, paste0(df[[w]])),stringsAsFactors=FALSE)
-      colnames(dfDataNames)="DocSum"
+      colnames(dfDataNames)="Summaries"
     }
     counter = counter + 1
     
@@ -39,8 +39,7 @@ while(counter <= 25){
 }
 
 #Merge data frames together
-dfData$DocSum = dfDataNames$DocSum
+dfData$Summaries = dfDataNames$Summaries
 
 # Status echo
 cat('Extracting completed. Moving to another stage...')
-
