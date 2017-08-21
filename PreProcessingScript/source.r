@@ -1,6 +1,6 @@
 # Source control script for complete dataset processing
 
-setwd('~/summCode')
+setwd('~/deep-Learning-Text-Summariser')
 
 # LIBRARIES
 library(RSQLite)
@@ -55,6 +55,9 @@ source('PreProcessingScript/processingDF.r')
 cat("Extracting preprocessed documents and summaries from DF...")
 source('PreProcessingScript/extracterDB.r')
 
+# Status echo
+cat("Dataset visualisation...\n")
+source('dataVisualisation/dataVisualisation.r')
 
 
 # WRITE CHANGES BACK TO DATABASE
@@ -65,8 +68,9 @@ conn = connDB('Data/DUCDataset.db')
 
 # Write changes back to DB
 # Wright query to database. Create new table and write new data
+options(warn=-1)
 dbSendQuery(conn, "CREATE TABLE rewsum1(Documents TEXT, Summaries TEXT)")
-dbWriteTable(conn, name="rewsum1", dfEdited, append=T, row.names=F, col.names=T)
+dbWriteTable(conn, name="rewsum1", dfData, append=T, row.names=F, col.names=T)
 
 # Extract data from 'rewsum1' table and write them to .csv file
 raw = dbGetQuery(conn, 'SELECT * FROM rewsum1')
