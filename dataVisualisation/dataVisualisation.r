@@ -10,6 +10,7 @@ library(RColorBrewer)
 library(sentimentr)
 library(tm)
 library(data.table)
+library(ggrepel)
 
 
 # ***Functions***
@@ -52,19 +53,6 @@ wordsNO = function(corpus) {
   return(wordsNO)
 }
 
-# Visualise Number of Words
-
-visualWordNO = function(i) {
-  top_word = i[order(i$Frequency, decreasing = TRUE)]
-  top_word = head(top_word, 10)
-  d = ggplot(top_word)
-  d = d + aes(Words, Frequency)
-  d = d + geom_point(alpha = 1 / 3)
-  d = d + geom_text_repel(aes(label = Words), size =7)
-  png('dataVisualisation/Plots/wordFrequency.png')
-  dev.off()
-}
-
 
 # ***Call Functions***
 # Sentiment Analysis
@@ -76,10 +64,19 @@ corpusDoc = corpusFunction(dfData$Documents)
 # Wordcloud Documents
 wordcloudDoc = wordFreq(corpusDoc)
 
-# Number of words
+# Number of words (Prepare subset)
 numWCorpus = corpusFunction(dfData$Documents)
 numW = wordsNO(numWCorpus)
 numW = setDT(numW, keep.rownames = TRUE)[]
 setnames(numW, old = c('rn', 'rowSums.as.matrix.tdm..'), new = c('Words', 'Frequency'))
-# Call Visualise function
-visualWordNO(numW)
+allWords=sum(numW$Frequency)
+
+# Visualise Top 10 words
+top_word = numW[order(numW$Frequency, decreasing = TRUE)]
+top_word_10 = head(top_word, 10)
+d = ggplot(top_word_10)
+d = d + aes(Words, Frequency)
+d = d + geom_bar(stat = "identity")
+png('dataVisualisation/Plots/wordFrequency.png')
+d
+dev.off()
