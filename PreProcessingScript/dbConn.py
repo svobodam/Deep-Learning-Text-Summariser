@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Author: Matej Svoboda
 # Database connection for DB manipulation
 
 # Import libraries
