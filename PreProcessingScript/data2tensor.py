@@ -1,3 +1,5 @@
+# Original script developed by Harshal Priyadarshi https://github.com/harpribot
+# Edited for purpose of this project.
 import numpy as np
 import pandas as pd
 from nltk.tokenize import wordpunct_tokenize
