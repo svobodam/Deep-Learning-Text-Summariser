@@ -1,4 +1,3 @@
-# Author: Matej Svoboda
 # Data Frame processing
 # Dataset used as .db file to allow managing DF from Python and R.
 # This process process dataset to remove html tags.
