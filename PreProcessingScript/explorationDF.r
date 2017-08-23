@@ -1,4 +1,3 @@
-# Author: Matej Svoboda
 # Data Frame exploration
 # Dataset used as .db file to allow managing DF from Python and R.
 # This script provides only basic exploration of the DF, including nrow(), ncol(), number of topics, number of documents and number summaries.
