@@ -1,3 +1,5 @@
+# Original script developed by Harshal Priyadarshi https://github.com/harpribot and from Tensorflow: https://github.com/tensorflow/models/tree/master/tutorials/rnn/ptb
+# Edited for purpose of this project.
 # Import required libraries
 from tensorflow.python.framework import ops
 import tensorflow as tf
@@ -39,7 +41,7 @@ class NeuralNet(object):
         #parameter test_batch_size: The batch size of test examples used for testing
         #parameter memory_dim: The length of the hidden vector produced by the encoder
         #parameter learning_rate: The learning rate for Stochastic Gradient Descent
-        #return: None
+        
 
         self.train_batch_size = train_batch_size
         self.test_batch_size = test_batch_size
@@ -109,7 +111,7 @@ class NeuralNet(object):
         # print tf.GraphKeys.GLOBAL_VARIABLES
         self.saver = tf.train.Saver(tf.global_variables())
         # get the latest checkpoint
-        last_checkpoint_path = self.checkpointer.get_last_checkpoint()
+        last_checkpoint_path = self.checkpointSys.get_last_checkpoint()
         if last_checkpoint_path is not None:
             print 'Previous saved tensorflow objects found... Extracting...'
             # restore the tensorflow variables
@@ -121,12 +123,10 @@ class NeuralNet(object):
         pass
 
     def _index2sentence(self, list_):
-        """
-        Converts the indexed sentence to the actual sentence
+        
+        # Converts the indexed sentence to the actual sentence, return string
 
-        :param list_: The list of the index of the words in the output sentence (in order)
-        :return: Output Sentence [String]
-        """
+       
         rev_map = self.mapper_dict['rev_map']  # rev_map is reverse mapping from index in vocabulary to actual word
         sentence = ""
         for entry in list_:
@@ -136,20 +136,20 @@ class NeuralNet(object):
         return sentence
 
     def store_test_predictions(self, prediction_id='_final'):
-        """
-        Stores the test predictions in a CSV file
         
-        :param prediction_id: A simple id appended to the name of the summary for uniqueness
-        :return: None
-        """
+        # Stores the test predictions in a CSV file
+        
+        # param prediction_id: A simple id appended to the name of the summary for uniqueness
+        
+        
         # prediction id is usually the step count
         print 'Storing predictions on Test Data...'
-        review = []
+        document = []
         true_summary = []
         generated_summary = []
         for i in range(self.test_size):
             if not self.checkpointSys.is_output_file_present():
-                review.append(self._index2sentence(self.test_review[i]))
+                document.append(self._index2sentence(self.test_review[i]))
                 true_summary.append(self._index2sentence(self.true_summary[i]))
             if i < (self.test_batch_size * (self.test_size // self.test_batch_size)):
                 generated_summary.append(self._index2sentence(self.predicted_test_summary[i]))
@@ -162,7 +162,7 @@ class NeuralNet(object):
             df[prediction_nm] = np.array(generated_summary)
         else:
             df = pd.DataFrame()
-            df['review'] = np.array(review)
+            df['document'] = np.array(document)
             df['true_summary'] = np.array(true_summary)
             df[prediction_nm] = np.array(generated_summary)
         df.to_csv(self.checkpointSys.get_result_location(), index=False)

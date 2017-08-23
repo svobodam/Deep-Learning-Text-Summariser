@@ -1,3 +1,8 @@
+# Original script developed by Harshal Priyadarshi https://github.com/harpribot and from Tensorflow: https://github.com/tensorflow/models/tree/master/tutorials/rnn/ptb
+# Edited for purpose of this project.
+
+#Simple, Unidirectional (one layer) sequence-to-sequence encoder-decoder model. Attention mechanism is disabled by default.
+# Import required libraries
 import tensorflow as tf
 from Models.sequenceNet import NeuralNet
 from abc import abstractmethod, ABCMeta
@@ -12,11 +17,7 @@ class Simple(NeuralNet):
 
     def __init__(self, docSum_file, checkpointSys, attention=False):
         
-        #A Simple (Unidirectional, One Layer) Seq2Seq Encoder-Decoder model
-
-        #param docSum_file: the DUC Dataset in .csv format
-        #param checkpointSys: The checkpoint handling object [Object]
-        #param attention: True, if attention mechanism is to be implemented, else False. Default: False
+       
 
         self.test_review = None
         self.predicted_test_summary = None
@@ -57,11 +58,8 @@ class Simple(NeuralNet):
 
         #divide the data into training and testing datasets 
         #Create the X_trn, X_tst, for both forward and backward, and Y_trn and Y_tst_fwd
-        #Note that only the documents are changed, and not the summary.
-
-        #:return: None
-
-        num_samples = self.Y.shape[0]
+        
+        num_samples = self.Y.shape[0] # number of columns in dataset
         mapper_file = self.checkpointSys.get_mapper_file_location()
         if not self.checkpointSys.is_mapper_checkpointed():
             print 'No mapper checkpoint found. Fresh loading in progress ...'
@@ -78,8 +76,8 @@ class Simple(NeuralNet):
 
         self.X = self.X[sample_id]
         self.Y = self.Y[sample_id]
-        # Now divide the data into test ans train set
-        test_fraction = 0.15
+        # Now divide the data into test and train set
+        test_fraction = 0.20
         self.test_size = int(test_fraction * num_samples)
         self.train_size = num_samples - self.test_size
         # review
@@ -90,11 +88,8 @@ class Simple(NeuralNet):
         self.Y_tst = self.Y[self.train_size:num_samples]
 
     def _load_data(self):
-        """
-        Load data only if the present data is not checkpointed, else, just load the checkpointed data
+        # First check if data checkpointed, else load new data
 
-        :return: None
-        """
         self.mapper = Mapper()
         self.mapper.generate_vocabulary(self.docSum_file)
         self.X, self.Y = self.mapper.get_tensor()
@@ -107,12 +102,11 @@ class Simple(NeuralNet):
         self._split_train_tst()
 
     def _load_data_graph(self):
-        """
-        Loads the data graph consisting of the encoder and decoder input placeholders, Label (Target tip summary)
-        placeholders and the weights of the hidden layer of the Seq2Seq model.
+        
+        #Loads the data graph consisting of the encoder and decoder input placeholders, Label (Target tip summary)
+        #placeholders and the weights of the hidden layer of the Seq2Seq model.
 
-        :return: None
-        """
+       
         # input
         with tf.variable_scope("train_test", reuse=True):
             self.enc_inp = [tf.placeholder(tf.int32, shape=(None,), name="input%i" % t)
@@ -129,20 +123,18 @@ class Simple(NeuralNet):
             self.dec_inp = ([tf.zeros_like(self.labels[0], dtype=np.int32, name="GO")] + self.labels[:-1])
 
     def _load_model(self):
-        """
-        Creates the encoder decoder model
-
-        :return: None
-        """
+        
+        # Create encoder - decoder model
         # Initial memory value for recurrence.
         self.prev_mem = tf.zeros((self.train_batch_size, self.memory_dim))
 
-        # choose RNN/GRU/LSTM cell
+        # Depends on get_cell definition in runScript
         with tf.variable_scope("train_test", reuse=True):
             self.cell = self.get_cell()
 
         # embedding model
         if not self.attention:
+            # If attention is disabled, then:
             with tf.variable_scope("train_test"):
                 self.dec_outputs, self.dec_memory = tf.nn.seq2seq.embedding_rnn_seq2seq(
                                 self.enc_inp, self.dec_inp, self.cell,
@@ -153,6 +145,7 @@ class Simple(NeuralNet):
                                 self.vocab_size, self.vocab_size, self.seq_length, feed_previous=True)
 
         else:
+            #If attention enabled then do:
             with tf.variable_scope("train_test"):
                 self.dec_outputs, self.dec_memory = tf.nn.seq2seq.embedding_attention_seq2seq(
                                 self.enc_inp, self.dec_inp, self.cell,
@@ -163,25 +156,19 @@ class Simple(NeuralNet):
                                 self.vocab_size, self.vocab_size, self.seq_length, feed_previous=True)
 
     def _load_optimizer(self):
-        """
-        Load the SGD optimizer
-
-        :return: None
-        """
+        
+        # http://ruder.io/optimizing-gradient-descent/index.html#momentum
         # loss function
         self.loss = tf.nn.seq2seq.sequence_loss(self.dec_outputs, self.labels, self.weights, self.vocab_size)
 
         # optimizer
-        # self.optimizer = tf.train.MomentumOptimizer(self.learning_rate, self.momentum)
-        self.optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        self.optimizer = tf.train.MomentumOptimizer(self.learning_rate, self.momentum)
         self.train_op = self.optimizer.minimize(self.loss)
 
     def fit(self):
-        """
-        Train the model with the training data
+        
+        # Train the model with the training data
 
-        :return: None
-        """
         # Iterate and train.
         step_file = self.checkpointSys.get_step_file()
         start_step = Pickle.load(open(step_file, 'rb'))
@@ -200,6 +187,7 @@ class Simple(NeuralNet):
             batch_data = self.X_trn[offset:(offset + self.train_batch_size), :].T
             batch_labels = self.Y_trn[offset:(offset + self.train_batch_size), :].T
 
+           
             loss_t = self._train_batch(batch_data, batch_labels)
             print "Present Loss:", loss_t
 
@@ -215,61 +203,51 @@ class Simple(NeuralNet):
 
             # Store prediction after certain number of steps #############
             # This will be useful for the graph construction
-            '''
-            if(step % self.checkpointer.get_prediction_checkpoint_steps() == 0):
+            
+            if(step % self.checkpointSys.get_prediction_checkpoint_steps() == 0):
                 self.predict()
                 self.store_test_predictions('_' + str(step))
-            '''
+            
 
-    def _train_batch(self, review, summary):
-        """
-        Train a batch of the data
+    def _train_batch(self, document, summary):
+        
+        # Train a batch of the data
 
-        :param review: The input review data (X) shape[seq_length x batch_length]
-        :param summary: The target tip data (Y) shape[seq_length x batch_length]
-        :return: None
-        """
         # feed in the data
-        feed_dict = {self.enc_inp[t]: review[t] for t in range(self.seq_length)}
+        feed_dict = {self.enc_inp[t]: document[t] for t in range(self.seq_length)}
         feed_dict.update({self.labels[t]: summary[t] for t in range(self.seq_length)})
 
         # train
         _, loss_t = self.sess.run([self.train_op, self.loss], feed_dict)
         return loss_t
 
-    def _visual_validate(self, review, true_summary):
-        """
-        Validate Result and display them on a sample
+    def _visual_validate(self, document, true_summary):
+        
+        #Validate Result and display them on a sample
 
-        :param review: The input review sentence
-        :param true_summary: The true summary (target)
-        :return: None
-        """
-        # review
-        print 'Original Review'
-        print self._index2sentence(review)
+        # Document
+        print 'Original Document'
+        print self._index2sentence(document)
         print
         # True summary
         print 'True Summary'
         print self._index2sentence(true_summary)
         print
         # Generated Summary
-        rev_out = self.generate_one_summary(review)
+        gen_sum = self.generate_one_summary(document)
         print 'Generated Summary'
-        print self._index2sentence(rev_out)
+        print self._index2sentence(gen_sum)
         print
 
-    def generate_one_summary(self, review):
-        """
-        Create summary for one review using Encoder Decoder Seq2Seq model
+    def generate_one_summary(self, document):
+        
+        #Create summary for one review using Encoder Decoder Seq2Seq model
 
-        :param review: The input review
-        :return: Output Summary of the model
-        """
-        review = review.T
-        review = [np.array([int(x)]) for x in review]
-        feed_dict_rev = {self.enc_inp[t]: review[t] for t in range(self.seq_length)}
-        feed_dict_rev.update({self.labels[t]: review[t] for t in range(self.seq_length)})
+      
+        document = document.T
+        document = [np.array([int(x)]) for x in document]
+        feed_dict_rev = {self.enc_inp[t]: document[t] for t in range(self.seq_length)}
+        feed_dict_rev.update({self.labels[t]: document[t] for t in range(self.seq_length)})
         summary = self.sess.run(self.dec_outputs_tst, feed_dict_rev)
         summary = [logits_t.argmax(axis=1) for logits_t in summary]
         summary = [x[0] for x in summary]
@@ -277,11 +255,10 @@ class Simple(NeuralNet):
         return summary
 
     def predict(self):
-        """
-        Make test time predictions of summary
+        
+        # Make test time predictions of summary
 
-        :return: None
-        """
+        
         self.predicted_test_summary = []
         for step in xrange(0, self.test_size // self.test_batch_size):
             print 'Predicting Batch No.:', step
@@ -297,16 +274,14 @@ class Simple(NeuralNet):
         self.predicted_test_summary = self.predicted_test_summary
         self.true_summary = self.Y_tst
 
-    def _predict_batch(self, review):
-        """
-        Predict test reviews in batches
+    def _predict_batch(self, document):
         
-        :param review: Input review batch
-        :return: None
-        """
+        #Predict test reviews in batches
+        
+       
         summary_out = []
-        feed_dict_test = {self.enc_inp[t]: review[t] for t in range(self.seq_length)}
-        feed_dict_test.update({self.labels[t]: review[t] for t in range(self.seq_length)})
+        feed_dict_test = {self.enc_inp[t]: document[t] for t in range(self.seq_length)}
+        feed_dict_test.update({self.labels[t]: document[t] for t in range(self.seq_length)})
         summary_test_prob = self.sess.run(self.dec_outputs_tst, feed_dict_test)
 
         # Do a softmax layer to get the final result
