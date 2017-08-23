@@ -1,4 +1,4 @@
-# Data Frame exploration.
+# Data Frame extraction.
 # Extract data from Documents and document summaries into new subset and prepare them for extarction to table in DB.
 
 # Extract Documents from df > dfData
