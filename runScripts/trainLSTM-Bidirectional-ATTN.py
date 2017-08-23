@@ -1,4 +1,4 @@
-# Original script developed by Harshal Priyadarshi https://github.com/harpribot and from Tensorflow: # Original script developed by Harshal Priyadarshi https://github.com/harpribot
+# Original script developed by Harshal Priyadarshi https://github.com/harpribot and from Tensorflow: https://github.com/tensorflow/models/tree/master/tutorials/rnn/ptb
 # Edited for purpose of this project.
 
 # Script to initiate training process of the LSTM network with attention enabled.
