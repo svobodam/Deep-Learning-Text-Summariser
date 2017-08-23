@@ -5,7 +5,7 @@ import cPickle as pickle
 import os
 
 
-class Checkpointer:
+class checkpointSys:
     def __init__(self, model_nm, cell_nm, attention_type):
         """
 
@@ -64,7 +64,7 @@ class Checkpointer:
 
         :return:
         """
-        return 'checkpoint/' + self.model_nm + '/' + self.cell_nm + '/' + self.attention_type
+        return 'Checkpoint/' + self.model_nm + '/' + self.cell_nm + '/' + self.attention_type
 
     def get_last_checkpoint(self):
         """
