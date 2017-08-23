@@ -1,3 +1,5 @@
+# Original script developed by Harshal Priyadarshi https://github.com/harpribot and https://www.tensorflow.org/programmers_guide/variables
+# Edited for purpose of this project.
 import glob
 import cPickle as pickle
 import os
