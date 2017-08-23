@@ -1,8 +1,7 @@
+# Original script developed by Harshal Priyadarshi https://github.com/harpribot
+# Edited for purpose of this project.
+
 # Script to initiate training process of the LSTM network with attention enabled.
-
-
-print("LSTM Network training process initiated with attention enabled...")
-
 
 # Import required libraries; Point system directory back to parent folder to allow import files below:
 import os
@@ -12,22 +11,25 @@ from Models import lstmSimple
 from PreProcessingScript import checkpoint
 
 
+print("LSTM Network training process initiated with attention enabled...")
+
+
 # Get the review summary file
 try:
 	docSum_file = 'Data/rewsum.csv'
 	print("Source data loaded.")
 except NameError:
-	print("No source data found. Please check if 'Data/rewsum.csv' exists!")
+	raise ValueError("No source data found. Please check if 'Data/rewsum.csv' exists!")
 
 
 # Initialise Checkpointer to ensure checkpointing, No. of steps per checkpoint: 1000
 checkpointSys = checkpoint.checkpointSys('simple', 'lstm', 'Attention')
-checkpointSys.steps_per_checkpoint(1000)
-checkpointSys.steps_per_prediction(1000)
+checkpointSys.steps_per_checkpoint(100)
+checkpointSys.steps_per_prediction(100)
 
 
-# Do using LSTM cell - with attention mechanism
-out_file = 'Results/lstm/attention.csv'
+# Do using LSTM cell - with attention mechanism enabled
+out_file = 'Results/Simple-LSTM/Attention/attention.csv'
 checkpointSys.set_result_location(out_file)
 lstm_net = lstmSimple.LstmSimple(docSum_file, checkpointSys, attention=True)
 #Set the parameters for the model and training.
