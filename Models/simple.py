@@ -182,14 +182,22 @@ class Simple(NeuralNet):
                 print 'Checkpointing Complete. Deleting historical checkpoints....'
                 self.checkpointer.delete_previous_checkpoints(num_previous=2)
                 print 'Deleted.. Moving forward...'
-
+            
+            # Train data loss
             offset = (step * self.train_batch_size) % self.train_size
             batch_data = self.X_trn[offset:(offset + self.train_batch_size), :].T
             batch_labels = self.Y_trn[offset:(offset + self.train_batch_size), :].T
 
-           
+            # Test data loss
+            offsettest = (step * self.test_batch_size) % self.test_size
+            batch_data_test = self.X_tst[offsettest:(offsettest + self.test_batch_size), :].T
+            batch_labels_test = self.Y_tst[offsettest:(offsettest + self.test_batch_size), :].T
+
             loss_t = self._train_batch(batch_data, batch_labels)
             print "Present Loss:", loss_t
+
+            loss_test = self._predict_batch(batch_data_test)
+            print "Present Test Loss:", loss_test
 
             # check results on 2 tasks - Visual Validation
             print 'Train Data Validation\n'
