@@ -30,7 +30,7 @@ checkpointSys.steps_per_prediction(100)
 # Do using LSTM cell - with attention mechanism disabled
 out_file = 'Results/Simple-LSTM/NoAttention/no-attention.csv'
 checkpointSys.set_result_location(out_file)
-lstm_net = lstmSimple.LstmSimple(docSum_file, checkpointSys, attention=True)
+lstm_net = lstmSimple.LstmSimple(docSum_file, checkpointSys, attention=False)
 #Set the parameters for the model and training.
         #parameter train_batch_size: The batch size of examples used for batch training
         #parameter test_batch_size: The batch size of test examples used for testing
